@@ -45,8 +45,33 @@ app.use('/api', ensureAuth);
 
 // END OF README COPY PASTE
 
+
+// gets the todo's for a particular user
 app.get('/api/todo', async(req, res) => {
   const data = await client.query('SELECT * from todo where owner_id=$1', [req.userId]);
+
+  res.json(data.rows);
+});
+
+// add todo's for a particular user, that is logged in
+app.post('/api/todo', async(req, res) => {
+  const data = await client.query(`
+  insert into todo (task, owner_id)
+  values ($1, $2)
+  returning *`,
+  [req.body.task, req.userId]);
+
+  res.json(data.rows);
+});
+
+// marks todos as completed
+app.put('/api/todo/:id', async(req, res) => {
+  const data = await client.query(`
+  UPDATE todo
+  SET is_complete=true
+  WHERE id=$1 AND owner_id=$2
+  returning*`,
+  [req.params.id, req.userId]);
 
   res.json(data.rows);
 });
