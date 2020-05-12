@@ -1,6 +1,6 @@
 const client = require('../lib/client');
 // import our seed data:
-const animals = require('./animals.js');
+const todoData = require('./todo.js');
 const usersData = require('./users.js');
 
 run();
@@ -20,19 +20,19 @@ async function run() {
         [user.email, user.hash]);
       })
     );
-      
+
     const user = users[0].rows[0];
 
     await Promise.all(
-      animals.map(animal => {
+      todoData.map(todo => {
         return client.query(`
-                    INSERT INTO animals (name, cool_factor, owner_id)
-                    VALUES ($1, $2, $3);
+                    INSERT INTO todo (task, owner_id)
+                    VALUES ($1, $2);
                 `,
-        [animal.name, animal.cool_factor, user.id]);
+        [todo.task, user.id]);
       })
     );
-    
+
 
     console.log('seed data load complete');
   }
@@ -42,5 +42,5 @@ async function run() {
   finally {
     client.end();
   }
-    
+
 }
